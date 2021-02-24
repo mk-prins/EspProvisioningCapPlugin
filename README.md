@@ -69,6 +69,19 @@ yarn link esp-provisioning-plugin
 npm link esp-provisioning-plugin
 ```
 
+**Note!** Once done, don't forget to `unlink`.
+```
+/* Inside of your own project */
+yarn unlink esp-provisioning-plugin
+-OR-
+npm unlink esp-provisioning-plugin
+
+/* Inside this project */
+yarn unlink
+-OR-
+npm unlink
+```
+
 ## Additional resources
 For more info on the packages used checkout their official documentation.
  - [Capacitor](https://capacitorjs.com/docs)
