@@ -1,7 +1,9 @@
 package com.myapp.plugins.espprovisioning;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanResult;
+import android.content.pm.PackageManager;
 
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPDevice;
@@ -15,7 +17,17 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
+
 import java.util.ArrayList;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.ACCESS_WIFI_STATE;
+import static android.Manifest.permission.BLUETOOTH;
+import static android.Manifest.permission.BLUETOOTH_ADMIN;
+import static android.Manifest.permission.CHANGE_WIFI_STATE;
 
 @NativePlugin
 public class EspProvisioning extends Plugin {
@@ -23,7 +35,7 @@ public class EspProvisioning extends Plugin {
     ESPProvisionManager espProvisionManager;
 
     public void load() {
-        espProvisionManager = ESPProvisionManager.getInstance(this.getContext());
+        espProvisionManager = ESPProvisionManager.getInstance(getActivity().getApplicationContext());
     }
 
     @PluginMethod
@@ -63,17 +75,18 @@ public class EspProvisioning extends Plugin {
     }
 
     @PluginMethod
-    public void scanQRCode (PluginCall call) {
+    public void scanQRCode(PluginCall call) {
         // TODO: Implement
         throw new UnsupportedOperationException();
     }
 
     @PluginMethod
-    public void searchBleEspDevices (final PluginCall call) {
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    public void searchBleEspDevices(final PluginCall call) {
         BleScanListener bleScanListener = new BleScanListener() {
 
-            ArrayList<BluetoothDevice> devices;
-            ArrayList<ScanResult> scanResults;
+            ArrayList<BluetoothDevice> devices = new ArrayList<BluetoothDevice>();
+            ArrayList<ScanResult> scanResults = new ArrayList<ScanResult>();
 
             @Override
             public void scanStartFailed() {
@@ -89,8 +102,20 @@ public class EspProvisioning extends Plugin {
             @Override
             public void scanCompleted() {
                 JSObject ret = new JSObject();
-                ret.put("devices", devices);
-                ret.put("scan_results", scanResults);
+                ret.put("length", devices.size());
+                if (devices.size() != 0) {
+                    for (BluetoothDevice bd : devices) {
+                        ret.put(bd.getName(), bd.getAddress());
+                    }
+                }
+                if (scanResults.size() != 0) {
+                    for (ScanResult sr : scanResults) {
+                        ret.put("scanresult", sr.toString());
+                    }
+                }
+                ret.put("test", "test1");
+//                ret.put("devices", devices);
+//                ret.put("scan_results", scanResults);
                 call.success(ret);
             }
 
@@ -99,24 +124,43 @@ public class EspProvisioning extends Plugin {
                 call.error("Failure", e);
             }
         };
-
         if (call.hasOption("prefix")) {
             String prefix = call.getString("prefix");
-            espProvisionManager.searchBleEspDevices(prefix, bleScanListener);
+            if (ActivityCompat.checkSelfPermission(this.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(prefix, bleScanListener);
         } else {
-            espProvisionManager.searchBleEspDevices(bleScanListener);
+            if (ActivityCompat.checkSelfPermission(this.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(bleScanListener);
         }
     }
 
-    // @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_FINE_LOCATION})
     @PluginMethod
+    @RequiresPermission(allOf = {BLUETOOTH_ADMIN, BLUETOOTH, ACCESS_FINE_LOCATION})
     public void stopBleScan (PluginCall call) {
         espProvisionManager.stopBleScan();
         call.success();
     }
 
-    // @RequiresPermission(allOf = {Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.ACCESS_WIFI_STATE})
     @PluginMethod
+    @RequiresPermission(allOf = {CHANGE_WIFI_STATE, ACCESS_WIFI_STATE})
     public void searchWifiEspDevices (final PluginCall call) {
         WiFiScanListener wiFiScanListener = new WiFiScanListener() {
             @Override
@@ -125,6 +169,7 @@ public class EspProvisioning extends Plugin {
                 for (WiFiAccessPoint accessPoint : wifiList) {
                     ret.put(accessPoint.getWifiName(), accessPoint);
                 }
+                ret.put("test","test2");
                 call.success(ret);
             }
 
