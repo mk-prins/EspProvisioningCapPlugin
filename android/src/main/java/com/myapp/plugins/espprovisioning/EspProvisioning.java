@@ -35,7 +35,14 @@ public class EspProvisioning extends Plugin {
     ESPProvisionManager espProvisionManager;
 
     public void load() {
-        espProvisionManager = ESPProvisionManager.getInstance(getActivity().getApplicationContext());
+        espProvisionManager = ESPProvisionManager.getInstance(getContext().getApplicationContext());
+    }
+
+    @PluginMethod
+    public void requestPermissions(PluginCall call){
+        String[] permissions = {ACCESS_FINE_LOCATION};
+        ActivityCompat.requestPermissions(getActivity(),permissions,1);
+        call.success();
     }
 
     @PluginMethod
@@ -85,8 +92,8 @@ public class EspProvisioning extends Plugin {
     public void searchBleEspDevices(final PluginCall call) {
         BleScanListener bleScanListener = new BleScanListener() {
 
-            ArrayList<BluetoothDevice> devices = new ArrayList<BluetoothDevice>();
-            ArrayList<ScanResult> scanResults = new ArrayList<ScanResult>();
+            ArrayList<BluetoothDevice> devices = new ArrayList<>();
+            ArrayList<ScanResult> scanResults = new ArrayList<>();
 
             @Override
             public void scanStartFailed() {
@@ -102,20 +109,9 @@ public class EspProvisioning extends Plugin {
             @Override
             public void scanCompleted() {
                 JSObject ret = new JSObject();
-                ret.put("length", devices.size());
-                if (devices.size() != 0) {
-                    for (BluetoothDevice bd : devices) {
-                        ret.put(bd.getName(), bd.getAddress());
-                    }
+                for (BluetoothDevice bd : devices) {
+                    ret.put(bd.getName(), bd);
                 }
-                if (scanResults.size() != 0) {
-                    for (ScanResult sr : scanResults) {
-                        ret.put("scanresult", sr.toString());
-                    }
-                }
-                ret.put("test", "test1");
-//                ret.put("devices", devices);
-//                ret.put("scan_results", scanResults);
                 call.success(ret);
             }
 
@@ -124,31 +120,17 @@ public class EspProvisioning extends Plugin {
                 call.error("Failure", e);
             }
         };
-        if (call.hasOption("prefix")) {
-            String prefix = call.getString("prefix");
-            if (ActivityCompat.checkSelfPermission(this.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
+        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (call.hasOption("prefix")) {
+                String prefix = call.getString("prefix");
+                ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(prefix, bleScanListener);
+            } else {
+                ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(bleScanListener);
             }
-            ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(prefix, bleScanListener);
         } else {
-            if (ActivityCompat.checkSelfPermission(this.getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(bleScanListener);
+            String[] permissions = {ACCESS_FINE_LOCATION};
+            ActivityCompat.requestPermissions(getActivity(),permissions,1);
+            call.error("Requires Permissions");
         }
     }
 
@@ -169,7 +151,6 @@ public class EspProvisioning extends Plugin {
                 for (WiFiAccessPoint accessPoint : wifiList) {
                     ret.put(accessPoint.getWifiName(), accessPoint);
                 }
-                ret.put("test","test2");
                 call.success(ret);
             }
 
@@ -186,5 +167,4 @@ public class EspProvisioning extends Plugin {
             espProvisionManager.searchWiFiEspDevices(wiFiScanListener);
         }
     }
-
 }
