@@ -91,7 +91,7 @@ For more info on the packages used checkout their official documentation.
    - [SDK for iOS](https://github.com/espressif/esp-idf-provisioning-ios)
 
 ## License
-Copyright [yyyy] [name of copyright owner]
+Copyright 2021 Research group Energy Transition, Windesheim University of Applied Sciences
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
