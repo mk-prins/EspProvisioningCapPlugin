@@ -7,6 +7,7 @@ This is a [capacitor](https://capacitorjs.com/docs) plugin for using the [Espres
  - [Developing](#developing)
    - [Local development](#local-development)
  - [Additional resources](#additional-resources)
+ - [License](#license)
 
 ## Installing
 Depending on wether you're using `yarn` or `npm` run the following inside the project you wish to add this plugin into.
@@ -88,3 +89,18 @@ For more info on the packages used checkout their official documentation.
  - [Espressif Unified Provisioning](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html)
    - [SDK for Android](https://github.com/espressif/esp-idf-provisioning-android)
    - [SDK for iOS](https://github.com/espressif/esp-idf-provisioning-ios)
+
+## License
+Copyright [yyyy] [name of copyright owner]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
