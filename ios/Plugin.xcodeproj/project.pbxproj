@@ -17,6 +17,8 @@
 		50E1A94820377CB70090CE1A /* Plugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E1A94720377CB70090CE1A /* Plugin.swift */; };
 		FCF1658725FA430A00D5F26D /* QRScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF1658625FA430900D5F26D /* QRScanViewController.swift */; };
 		FCF1658B25FA444000D5F26D /* formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF1658A25FA444000D5F26D /* formatter.swift */; };
+		FCF165A72600E90400D5F26D /* Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF165A62600E90400D5F26D /* Timeout.swift */; };
+		FCF165AB2601F81100D5F26D /* ProvisioningManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF165AA2601F81100D5F26D /* ProvisioningManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,8 @@
 		F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PluginTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCF1658625FA430900D5F26D /* QRScanViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewController.swift; sourceTree = "<group>"; };
 		FCF1658A25FA444000D5F26D /* formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = formatter.swift; sourceTree = "<group>"; };
+		FCF165A62600E90400D5F26D /* Timeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeout.swift; sourceTree = "<group>"; };
+		FCF165AA2601F81100D5F26D /* ProvisioningManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisioningManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,8 +102,10 @@
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
 				50ADFF8C201F53D600D50D53 /* Info.plist */,
+				FCF165AA2601F81100D5F26D /* ProvisioningManager.swift */,
 				FCF1658625FA430900D5F26D /* QRScanViewController.swift */,
 				FCF1658A25FA444000D5F26D /* formatter.swift */,
+				FCF165A62600E90400D5F26D /* Timeout.swift */,
 			);
 			path = Plugin;
 			sourceTree = "<group>";
@@ -315,7 +321,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCF1658725FA430A00D5F26D /* QRScanViewController.swift in Sources */,
+				FCF165AB2601F81100D5F26D /* ProvisioningManager.swift in Sources */,
 				50E1A94820377CB70090CE1A /* Plugin.swift in Sources */,
+				FCF165A72600E90400D5F26D /* Timeout.swift in Sources */,
 				FCF1658B25FA444000D5F26D /* formatter.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */,
 			);
