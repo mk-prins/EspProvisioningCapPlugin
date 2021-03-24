@@ -7,11 +7,39 @@ import Capacitor
  */
 @objc(EspProvisioning)
 public class EspProvisioning: CAPPlugin {
-
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.success([
-            "value": value
-        ])
+    
+    private var provisioningManager: ProvisioningManager!
+    
+    @objc override public func load() {
+        self.provisioningManager = ProvisioningManager(viewController: self.bridge.viewController)
     }
+
+    @objc func createESPDevice(_ call: CAPPluginCall) {
+        self.provisioningManager.createESPDevice(call: call)
+    }
+    
+    @objc func searchBleEspDevices(_ call: CAPPluginCall) {
+        self.provisioningManager.searchBleEspDevices(call: call)
+    }
+    
+    @objc func searchWifiEspDevices(_ call: CAPPluginCall) {
+        call.reject("SoftAP search is not supported in iOS currently.")
+    }
+    
+    @objc func scanQRCode(_ call: CAPPluginCall) {
+        self.provisioningManager.scanQRCode(call: call)
+    }
+    
+    @objc func connectToDevice(_ call: CAPPluginCall) {
+        self.provisioningManager.connectToDevice(call: call)
+    }
+    
+    @objc func scanWifiList(_ call: CAPPluginCall) {
+        self.provisioningManager.scanWifiList(call: call)
+    }
+    
+    @objc func provision(_ call: CAPPluginCall) {
+        self.provisioningManager.provision(call: call)
+    }
+
 }

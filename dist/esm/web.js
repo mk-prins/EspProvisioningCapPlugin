@@ -31,12 +31,6 @@ export class EspProvisioningWeb extends WebPlugin {
             return data;
         });
     }
-    getEspDevice() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[Web]: getEspDevice');
-            return Promise.resolve({});
-        });
-    }
     scanQRCode(data) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('[Web]: scanQRCode', data);
@@ -58,6 +52,24 @@ export class EspProvisioningWeb extends WebPlugin {
     searchWifiEspDevices(data) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('[Web]: searchWifiEspDevices', data);
+            return data;
+        });
+    }
+    connectToDevice(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[Web]: connectToDevice', data);
+            return data;
+        });
+    }
+    scanWifiList(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[Web]: scanWifiList', data);
+            return data;
+        });
+    }
+    provision(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[Web]: provision', data);
             return data;
         });
     }
