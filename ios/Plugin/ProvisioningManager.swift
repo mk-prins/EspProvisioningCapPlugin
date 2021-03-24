@@ -43,8 +43,8 @@ public class ProvisioningManager: NSObject {
         let pop = call.getString("pop")!
         
         ESPProvision.ESPProvisionManager.shared.createESPDevice(deviceName: name, transport: tpType, security: secType, proofOfPossession: pop){ espDevice, error in
-            if (espDevice?.name == nil) {
-                call.reject("Device could not be created")
+            if (error != nil) {
+                call.error("Device could not be created", error)
                 return
             }
             call.resolve([
@@ -59,9 +59,9 @@ public class ProvisioningManager: NSObject {
         let tpType = Formatter.espTransportStringToEnum(str: call.getString("transport")) ?? .ble;
         let secType = Formatter.espSecurityStringToEnum(str: call.getString("security")) ?? .unsecure;
         
-        ESPProvision.ESPProvisionManager.shared.searchESPDevices(devicePrefix: prefix, transport:tpType, security:secType) { deviceList, _ in
-            if (deviceList == nil || (deviceList != nil && !(deviceList!.count > 0))) {
-                call.reject("No devices found")
+        ESPProvision.ESPProvisionManager.shared.searchESPDevices(devicePrefix: prefix, transport:tpType, security:secType) { deviceList, error in
+            if (error != nil) {
+                call.error("No devices found", error)
                 return
             }
             call.resolve([
@@ -77,8 +77,8 @@ public class ProvisioningManager: NSObject {
             self.rootViewController.present(qrScanViewController, animated: true, completion: nil)
             
             ESPProvisionManager.shared.scanQRCode(scanView: qrScanViewController.CameraView) { espDevice, error in
-                if (espDevice?.name == nil) {
-                    call.reject("Device could not be found");
+                if (error != nil) {
+                    call.error("Device could not be found", error);
                     return
                 }
                 call.success([
@@ -116,9 +116,9 @@ public class ProvisioningManager: NSObject {
         }
         
         let device = self.deviceList[deviceID!]
-        device.scanWifiList { wifiList, _ in
-            if (wifiList != nil && !(wifiList!.count > 0)) {
-                call.reject("Unable to find any Wifi Networks.")
+        device.scanWifiList { wifiList, error in
+            if (error != nil) {
+                call.error("Unable to find any Wifi Networks.", error)
             }
             call.success([
                 "count": wifiList!.count,
