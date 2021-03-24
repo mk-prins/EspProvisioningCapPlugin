@@ -9,13 +9,21 @@ declare enum SecurityType {
     SECURITY_1 = 1
 }
 interface ESPDevice {
-    name: string;
-    transport_type: TransportType;
-    security_type: SecurityType;
-    proof_of_possesion: string;
-    primary_service_uuid: string;
-    capabilities: unknown;
-    version: string;
+    id: number;
+    device: {
+        name: string;
+        transport_type: TransportType;
+        security_type: SecurityType;
+        proof_of_possesion: string;
+        primary_service_uuid: string;
+        capabilities: unknown;
+        version: string;
+    };
+}
+interface WifiNetwork {
+    ssid: string;
+    channel: string;
+    rssi: string;
 }
 export declare class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
     constructor();
@@ -23,15 +31,32 @@ export declare class EspProvisioningWeb extends WebPlugin implements EspProvisio
         transportType: TransportType;
         securityType: SecurityType;
     }): Promise<ESPDevice>;
-    getEspDevice(): Promise<ESPDevice>;
-    scanQRCode(data: unknown): Promise<unknown>;
+    scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: {
         prefix: string;
-    }): Promise<unknown>;
+    }): Promise<{
+        count: number;
+        devices: ESPDevice[];
+    }>;
     stopBleScane(): Promise<void>;
     searchWifiEspDevices(data?: {
         prefix: string;
-    }): Promise<unknown>;
+    }): Promise<{
+        count: number;
+        devices: ESPDevice[];
+    }>;
+    connectToDevice(data: {
+        device: number;
+    }): Promise<Record<string, string>>;
+    scanWifiList(data: {
+        device: number;
+    }): Promise<{
+        count: number;
+        networks: WifiNetwork[];
+    }>;
+    provision(data: {
+        device: number;
+    }): Promise<Record<string, string>>;
 }
 declare const EspProvisioning: EspProvisioningWeb;
 export { EspProvisioning };
