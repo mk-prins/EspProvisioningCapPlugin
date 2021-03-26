@@ -13,6 +13,7 @@ import com.espressif.provisioning.WiFiAccessPoint;
 import com.espressif.provisioning.listeners.BleScanListener;
 import com.espressif.provisioning.listeners.ProvisionListener;
 import com.espressif.provisioning.listeners.WiFiScanListener;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
@@ -39,8 +40,22 @@ import static android.Manifest.permission.CHANGE_WIFI_STATE;
 public class EspProvisioning extends Plugin {
 
     private ESPProvisionManager espProvisionManager;
-    private Hashtable<String,BluetoothDevice> bleDevices;
-    private ESPDevice espDevice;
+    private Hashtable<String,ScanResult> scanResults;
+    private Hashtable<Integer,ESPDevice> espDevices = new Hashtable<>();
+
+    private Integer createDeviceID(ESPDevice espDevice){
+        Integer deviceID = espDevices.size();
+        espDevices.put(deviceID,espDevice);
+
+        return deviceID;
+    }
+
+    private boolean validateDeviceID(Integer deviceID){
+        if(espDevices.containsKey(deviceID)){
+            return true;
+        }
+        return false;
+    }
 
     public void load() {
         espProvisionManager = ESPProvisionManager.getInstance(getContext().getApplicationContext());
@@ -55,101 +70,19 @@ public class EspProvisioning extends Plugin {
 
     @PluginMethod
     @RequiresPermission(ACCESS_NETWORK_STATE)
-    public void createESPDevice(PluginCall call) {
-        String tpType = call.getString("transportType", ESPConstants.TransportType.TRANSPORT_BLE.toString());
-        String secType = call.getString("securityType", ESPConstants.SecurityType.SECURITY_1.toString());
-
-        ESPConstants.TransportType transportType = ESPConstants.TransportType.valueOf(tpType);
-        ESPConstants.SecurityType securityType = ESPConstants.SecurityType.valueOf(secType);
-
-        ESPDevice espDevice = espProvisionManager.createESPDevice(transportType, securityType);
-        espDevice.setDeviceName("PROV_XXX");
-        espDevice.setProofOfPossession("abcd1234");
-        espDevice.setBluetoothDevice(bleDevices.get("PROV_XXX"));
-//        espDevice.connectToDevice();
-
-        JSObject ret = new JSObject();
-        ret.put("name", espDevice.getDeviceName());
-        ret.put("transport_type", espDevice.getTransportType().toString());
-        ret.put("security_type", espDevice.getSecurityType().toString());
-        ret.put("proof_of_possession", espDevice.getProofOfPossession());
-        ret.put("primary_service_uuid", espDevice.getPrimaryServiceUuid());
-        ret.put("capabilities", espDevice.getDeviceCapabilities());
-        ret.put("version", espDevice.getVersionInfo());
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void getEspDevice(PluginCall call) {
-        ESPDevice espDevice = espProvisionManager.getEspDevice();
-
-        JSObject ret = new JSObject();
-        ret.put("name", espDevice.getDeviceName());
-        ret.put("transport_type", espDevice.getTransportType().toString());
-        ret.put("security_type", espDevice.getSecurityType().toString());
-        ret.put("proof_of_possession", espDevice.getProofOfPossession());
-        ret.put("primary_service_uuid", espDevice.getPrimaryServiceUuid());
-        ret.put("capabilities", espDevice.getDeviceCapabilities());
-        ret.put("version", espDevice.getVersionInfo());
-        call.success(ret);
-    }
-
-    @PluginMethod
-    @RequiresPermission(CAMERA)
-    public void scanQRCode(PluginCall call) {
-        final JSObject ret = new JSObject();
-        ProvisionListener provisionListener = new ProvisionListener() {
-            @Override
-            public void createSessionFailed(Exception e) {
-                ret.put("createSessionFailed", e.getMessage());
-            }
-
-            @Override
-            public void wifiConfigSent() {
-                ret.put("wifiConfigSent", "success");
-            }
-
-            @Override
-            public void wifiConfigFailed(Exception e) {
-                ret.put("wifiConfigFailed", e.getMessage());
-            }
-
-            @Override
-            public void wifiConfigApplied() {
-                ret.put("wifiConfigApplied", "success");
-            }
-
-            @Override
-            public void wifiConfigApplyFailed(Exception e) {
-                ret.put("wifiConfigApplyFailed", e.getMessage());
-            }
-
-            @Override
-            public void provisioningFailedFromDevice(ESPConstants.ProvisionFailureReason failureReason) {
-                ret.put("provisioningFailedFromDevice", failureReason.toString());
-            }
-
-            @Override
-            public void deviceProvisioningSuccess() {
-                ret.put("deviceProvisioning", "success");
-            }
-
-            @Override
-            public void onProvisioningFailed(Exception e) {
-                ret.put("onProvisioningFailed", e.getMessage());
-            }
-        };
-        espDevice.provision("","",provisionListener);
-        call.success(ret);
-    }
-
-    @PluginMethod
-    @RequiresPermission(ACCESS_FINE_LOCATION)
-    public void searchBleEspDevices(final PluginCall call) {
+    public void createESPDevice(final PluginCall call) {
         if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            bleDevices = new Hashtable<>();
+            scanResults = new Hashtable<>();
+
+            String tpType = call.getString("transportType", ESPConstants.TransportType.TRANSPORT_BLE.toString());
+            String secType = call.getString("securityType", ESPConstants.SecurityType.SECURITY_1.toString());
+
+            final String name = call.getString("name");
+            final String pop = call.getString("pop");
+            final ESPConstants.TransportType transportType = ESPConstants.TransportType.valueOf(tpType);
+            final ESPConstants.SecurityType securityType = ESPConstants.SecurityType.valueOf(secType);
+
             BleScanListener bleScanListener = new BleScanListener() {
-                Hashtable<String,ScanResult> scanResults = new Hashtable<>();
 
                 @Override
                 public void scanStartFailed() {
@@ -158,9 +91,62 @@ public class EspProvisioning extends Plugin {
 
                 @Override
                 public void onPeripheralFound(BluetoothDevice device, ScanResult scanResult) {
-                    if(!bleDevices.containsKey(device.getName())){
-                        bleDevices.put(device.getName(),device);
+                    if (!scanResults.containsKey(scanResult.getDevice().getName())) {
+                        scanResults.put(scanResult.getDevice().getName(), scanResult);
                     }
+                }
+
+                @Override
+                public void scanCompleted() {
+                    if (scanResults.containsKey(name)) {
+                        ESPDevice espDevice = espProvisionManager.createESPDevice(transportType, securityType);
+                        espDevice.setDeviceName(name);
+                        espDevice.setProofOfPossession(pop);
+                        espDevice.setBluetoothDevice(scanResults.get(name).getDevice());
+                        espDevice.setPrimaryServiceUuid(scanResults.get(name).getScanRecord().getServiceUuids().get(0).getUuid().toString());
+                        int deviceID = createDeviceID(espDevice);
+                        JSObject ret = new JSObject();
+                        ret.put("id",deviceID);
+                        ret.put("name",espDevice.getDeviceName());
+                        ret.put("pop",espDevice.getProofOfPossession());
+                        ret.put("transportType",espDevice.getTransportType());
+                        ret.put("securityType",espDevice.getSecurityType());
+                        ret.put("primaryServiceUuid",espDevice.getPrimaryServiceUuid());
+                        call.success(ret);
+                    } else {
+                        call.error("Device not found");
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    call.error("Failure", e);
+                }
+            };
+            espProvisionManager.searchBleEspDevices(name, bleScanListener);
+        }
+    }
+
+    @PluginMethod
+    @RequiresPermission(CAMERA)
+    public void scanQRCode(PluginCall call) {
+        call.reject("Not yet implemented");
+    }
+
+    @PluginMethod
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    public void searchBleEspDevices(final PluginCall call) {
+        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            scanResults = new Hashtable<>();
+            BleScanListener bleScanListener = new BleScanListener() {
+
+                @Override
+                public void scanStartFailed() {
+                    call.error("ScanStartFailed");
+                }
+
+                @Override
+                public void onPeripheralFound(BluetoothDevice device, ScanResult scanResult) {
                     if(!scanResults.containsKey(scanResult.getDevice().getName())){
                         scanResults.put(scanResult.getDevice().getName(),scanResult);
                     }
@@ -169,20 +155,10 @@ public class EspProvisioning extends Plugin {
                 @Override
                 public void scanCompleted() {
                     final JSObject ret = new JSObject();
-                    for (BluetoothDevice bd : bleDevices.values()) {
-                        ret.put(bd.getName(), bd);
+                    for (ScanResult sr : scanResults.values()) {
+                        ret.put(sr.getDevice().getName(), sr);
                     }
-                    espDevice = espProvisionManager.createESPDevice(ESPConstants.TransportType.TRANSPORT_BLE, ESPConstants.SecurityType.SECURITY_1);
-                    if(bleDevices.containsKey("PROV_XXX")) {
-                        espDevice.setBluetoothDevice();
-                        espDevice.setProofOfPossession("abcd1234");
-                        espDevice.setDeviceName("PROV_XXX");
-                        List<ParcelUuid> uuids = scanResults.get("PROV_XXX").getScanRecord().getServiceUuids();
-                        ParcelUuid uuid = uuids.get(0);
-                        espDevice.setPrimaryServiceUuid(scanResults.get("PROV_XXX").getScanRecord().getServiceUuids().get(0).getUuid().toString());
-                        espDevice.connectToDevice();
-                        call.success(ret);
-                    }
+                    call.success(ret);
                 }
 
                 @Override
@@ -192,7 +168,7 @@ public class EspProvisioning extends Plugin {
             };
             if (call.hasOption("prefix")) {
                 String prefix = call.getString("prefix");
-                ESPProvisionManager.getInstance(getContext().getApplicationContext()).searchBleEspDevices(prefix, bleScanListener);
+                espProvisionManager.searchBleEspDevices(prefix, bleScanListener);
             } else {
                 espProvisionManager.searchBleEspDevices(bleScanListener);
             }
@@ -234,6 +210,111 @@ public class EspProvisioning extends Plugin {
             espProvisionManager.searchWiFiEspDevices(prefix, wiFiScanListener);
         } else {
             espProvisionManager.searchWiFiEspDevices(wiFiScanListener);
+        }
+    }
+
+    @PluginMethod
+    @RequiresPermission(ACCESS_NETWORK_STATE)
+    public void connectToDevice(PluginCall call){
+        Integer deviceID = call.getInt("device");
+        if(validateDeviceID(deviceID)){
+            ESPDevice device = espDevices.get(deviceID);
+            device.connectToDevice();
+            //TO-DO check if device is connected
+            JSObject ret = new JSObject();
+            ret.put("Return Message", "Device Connected... I hope");
+            call.success(ret);
+        } else {
+            call.reject("Invalid Device ID provided");
+        }
+    }
+
+    @PluginMethod
+    public void scanWifiList(final PluginCall call){
+        Integer deviceID = call.getInt("device");
+        if(validateDeviceID(deviceID)){
+            ESPDevice device = espDevices.get(deviceID);
+            WiFiScanListener wifiScanListener = new WiFiScanListener() {
+                @Override
+                public void onWifiListReceived(ArrayList<WiFiAccessPoint> wifiList) {
+                    JSObject ret = new JSObject();
+                    ret.put("count",wifiList.size());
+                    JSArray networks = new JSArray();
+                    JSObject network;
+                    for(WiFiAccessPoint ap : wifiList){
+                        network = new JSObject();
+                        network.put("ssid",ap.getWifiName());
+                        network.put("rssi",ap.getRssi());
+                        networks.put(network);
+                    }
+                    ret.put("networks",networks);
+                    call.success(ret);
+                }
+
+                @Override
+                public void onWiFiScanFailed(Exception e) {
+                    call.error("WiFi Scan Failed",e);
+                }
+            };
+            device.scanNetworks(wifiScanListener);
+        } else {
+            call.reject("Invalid Device ID provided");
+        }
+    }
+
+    @PluginMethod
+    public void provision(final PluginCall call){
+        Integer deviceID = call.getInt("device");
+        String ssid = call.getString("ssid");
+        String passphrase = call.getString("passphrase");
+        if(validateDeviceID(deviceID)){
+            final JSObject ret = new JSObject();
+            ESPDevice device = espDevices.get(deviceID);
+            ProvisionListener provisionListener = new ProvisionListener() {
+                @Override
+                public void createSessionFailed(Exception e) {
+                    call.error("Create Session Failed",e);
+                }
+
+                @Override
+                public void wifiConfigSent() {
+                    ret.put("wifiConfigSent", "success");
+                }
+
+                @Override
+                public void wifiConfigFailed(Exception e) {
+                    call.error("WiFi Config Failed",e);
+                }
+
+                @Override
+                public void wifiConfigApplied() {
+                    ret.put("wifiConfigApplied", "success");
+                }
+
+                @Override
+                public void wifiConfigApplyFailed(Exception e) {
+                    call.error("WiFi Config Apply Failed",e);
+                }
+
+                @Override
+                public void provisioningFailedFromDevice(ESPConstants.ProvisionFailureReason failureReason) {
+                    call.reject(failureReason.toString());
+                }
+
+                @Override
+                public void deviceProvisioningSuccess() {
+                    ret.put("deviceProvisioning", "success");
+                    call.success(ret);
+                }
+
+                @Override
+                public void onProvisioningFailed(Exception e) {
+                    call.error("Provisioning Failed",e);
+                }
+            };
+            device.provision(ssid,passphrase,provisionListener);
+        } else {
+            call.reject("Invalid Device ID provided");
         }
     }
 }

@@ -34,12 +34,12 @@ interface WifiNetwork {
 }
 
 export interface EspProvisioningPlugin {
-    createEspDevice(data: { transportType: TransportType, securityType: SecurityType }): Promise<ESPDevice>;
+    createEspDevice(data: { name: string, transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice>;
     scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
     searchWifiEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
-    stopBleScane(): Promise<void>;
+    stopBleScan(): Promise<void>;
     connectToDevice(data: { device: number }): Promise<Record<string, string>>;
     scanWifiList(data: { device: number }): Promise<{ count: number; networks: WifiNetwork[]}>;
-    provision(data: { device: number }): Promise<Record<string, string>>;
+    provision(data: { device: number, ssid: string, passphrase: string }): Promise<Record<string, string>>;
 }
