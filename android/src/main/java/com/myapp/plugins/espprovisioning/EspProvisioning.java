@@ -106,12 +106,14 @@ public class EspProvisioning extends Plugin {
                         espDevice.setPrimaryServiceUuid(scanResults.get(name).getScanRecord().getServiceUuids().get(0).getUuid().toString());
                         int deviceID = createDeviceID(espDevice);
                         JSObject ret = new JSObject();
+                        JSObject device = new JSObject();
                         ret.put("id",deviceID);
-                        ret.put("name",espDevice.getDeviceName());
-                        ret.put("pop",espDevice.getProofOfPossession());
-                        ret.put("transportType",espDevice.getTransportType());
-                        ret.put("securityType",espDevice.getSecurityType());
-                        ret.put("primaryServiceUuid",espDevice.getPrimaryServiceUuid());
+                        device.put("name",espDevice.getDeviceName());
+                        device.put("transport_type",espDevice.getTransportType().toString());
+                        device.put("security_type",espDevice.getSecurityType().toString());
+                        device.put("proof_of_possesion",espDevice.getProofOfPossession());
+                        device.put("primary_service_uuid",espDevice.getPrimaryServiceUuid());
+                        ret.put("device",device);
                         call.success(ret);
                     } else {
                         call.error("Device not found");
@@ -215,7 +217,7 @@ public class EspProvisioning extends Plugin {
 
     @PluginMethod
     @RequiresPermission(ACCESS_NETWORK_STATE)
-    public void connectToDevice(PluginCall call){
+    public void connectToDevice(PluginCall call) throws InterruptedException {
         Integer deviceID = call.getInt("device");
         if(validateDeviceID(deviceID)){
             ESPDevice device = espDevices.get(deviceID);
@@ -223,6 +225,7 @@ public class EspProvisioning extends Plugin {
             //TO-DO check if device is connected
             JSObject ret = new JSObject();
             ret.put("Return Message", "Device Connected... I hope");
+            Thread.sleep(5000);
             call.success(ret);
         } else {
             call.reject("Invalid Device ID provided");
@@ -278,7 +281,6 @@ public class EspProvisioning extends Plugin {
 
                 @Override
                 public void wifiConfigSent() {
-                    ret.put("wifiConfigSent", "success");
                 }
 
                 @Override
@@ -298,12 +300,12 @@ public class EspProvisioning extends Plugin {
 
                 @Override
                 public void provisioningFailedFromDevice(ESPConstants.ProvisionFailureReason failureReason) {
-                    call.reject(failureReason.toString());
+                    call.error(failureReason.toString());
                 }
 
                 @Override
                 public void deviceProvisioningSuccess() {
-                    ret.put("deviceProvisioning", "success");
+                    ret.put("status", "success");
                     call.success(ret);
                 }
 
