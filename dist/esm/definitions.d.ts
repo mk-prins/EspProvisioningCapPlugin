@@ -30,8 +30,10 @@ interface WifiNetwork {
 }
 export interface EspProvisioningPlugin {
     createEspDevice(data: {
+        name: string;
         transportType: TransportType;
         securityType: SecurityType;
+        pop: string;
     }): Promise<ESPDevice>;
     scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: {
@@ -46,7 +48,7 @@ export interface EspProvisioningPlugin {
         count: number;
         devices: ESPDevice[];
     }>;
-    stopBleScane(): Promise<void>;
+    stopBleScan(): Promise<void>;
     connectToDevice(data: {
         device: number;
     }): Promise<Record<string, string>>;
@@ -58,6 +60,8 @@ export interface EspProvisioningPlugin {
     }>;
     provision(data: {
         device: number;
+        ssid: string;
+        passphrase: string;
     }): Promise<Record<string, string>>;
 }
 export {};
