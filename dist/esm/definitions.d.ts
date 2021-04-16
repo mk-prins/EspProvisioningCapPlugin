@@ -3,15 +3,15 @@ declare module '@capacitor/core' {
         EspProvisioning: EspProvisioningPlugin;
     }
 }
-declare enum TransportType {
+export declare enum TransportType {
     TRANSPORT_BLE = 0,
     TRANSPORT_SOFTAP = 1
 }
-declare enum SecurityType {
+export declare enum SecurityType {
     SECURITY_0 = 0,
     SECURITY_1 = 1
 }
-interface ESPDevice {
+export interface ESPDevice {
     id: number;
     device: {
         name: string;
@@ -23,13 +23,13 @@ interface ESPDevice {
         version: string;
     };
 }
-interface WifiNetwork {
+export interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
 }
 export interface EspProvisioningPlugin {
-    createEspDevice(data: {
+    createESPDevice(data: {
         name: string;
         transportType: TransportType;
         securityType: SecurityType;
@@ -64,4 +64,3 @@ export interface EspProvisioningPlugin {
         passphrase: string;
     }): Promise<Record<string, string>>;
 }
-export {};

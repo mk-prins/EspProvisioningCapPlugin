@@ -38,7 +38,7 @@ export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlug
         });
     }
 
-    async createEspDevice(data: { transportType: TransportType, securityType: SecurityType }): Promise<ESPDevice> {
+    async createESPDevice(data: { transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice> {
         console.log('[Web]: createEspDevice', data);
         return data as {} as ESPDevice;
     }
@@ -53,7 +53,7 @@ export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlug
         return data as {} as { count: number; devices: ESPDevice[] };
     }
 
-    async stopBleScane(): Promise<void> {
+    async stopBleScan(): Promise<void> {
         console.log('[Web]: stopBleScane');
         return Promise.resolve();
     }

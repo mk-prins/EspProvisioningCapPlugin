@@ -1,6 +1,6 @@
 {
   "name": "esp-provisioning-plugin",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Esppressif Unified Provisiong SDK Plugin",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",

@@ -39,7 +39,7 @@ public class ProvisioningManager: NSObject {
     public func createESPDevice(call: CAPPluginCall) {
         let name = call.getString("name")!
         let tpType = Formatter.espTransportStringToEnum(str: call.getString("transport")) ?? .ble
-        let secType = Formatter.espSecurityStringToEnum(str: call.getString("security")) ?? .unsecure
+        let secType = Formatter.espSecurityStringToEnum(str: call.getString("security")) ?? .secure
         let pop = call.getString("pop")!
         
         ESPProvision.ESPProvisionManager.shared.createESPDevice(deviceName: name, transport: tpType, security: secType, proofOfPossession: pop){ espDevice, error in
@@ -102,9 +102,9 @@ public class ProvisioningManager: NSObject {
                 call.success([
                     "status": "connected"
                 ])
-                return
+            } else {
+                call.reject("Unable to connect to device")
             }
-            call.reject("Unable to connect to device")
         }
     }
     
@@ -144,11 +144,12 @@ public class ProvisioningManager: NSObject {
         let device = self.deviceList[deviceID!]
         device.provision(ssid: ssid!, passPhrase: passphrase) { status in
             if case ESPProvisionStatus.failure = status {
-                call.reject("Failed to provision device.")
+                call.reject(Formatter.provisionStatusToString(status: status))
+            } else if case ESPProvisionStatus.success = status {
+                call.success([
+                    "status": Formatter.provisionStatusToString(status: status)
+                ])
             }
-            call.success([
-                "status": "success"
-            ])
         }
     }
 

@@ -27,9 +27,10 @@ interface WifiNetwork {
 }
 export declare class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
     constructor();
-    createEspDevice(data: {
+    createESPDevice(data: {
         transportType: TransportType;
         securityType: SecurityType;
+        pop: string;
     }): Promise<ESPDevice>;
     scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: {
@@ -38,7 +39,7 @@ export declare class EspProvisioningWeb extends WebPlugin implements EspProvisio
         count: number;
         devices: ESPDevice[];
     }>;
-    stopBleScane(): Promise<void>;
+    stopBleScan(): Promise<void>;
     searchWifiEspDevices(data?: {
         prefix: string;
     }): Promise<{
