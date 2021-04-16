@@ -1,6 +1,17 @@
 var capacitorPlugin = (function (exports, core) {
     'use strict';
 
+    exports.TransportType = void 0;
+    (function (TransportType) {
+        TransportType[TransportType["TRANSPORT_BLE"] = 0] = "TRANSPORT_BLE";
+        TransportType[TransportType["TRANSPORT_SOFTAP"] = 1] = "TRANSPORT_SOFTAP";
+    })(exports.TransportType || (exports.TransportType = {}));
+    exports.SecurityType = void 0;
+    (function (SecurityType) {
+        SecurityType[SecurityType["SECURITY_0"] = 0] = "SECURITY_0";
+        SecurityType[SecurityType["SECURITY_1"] = 1] = "SECURITY_1";
+    })(exports.SecurityType || (exports.SecurityType = {}));
+
     var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
         return new (P || (P = Promise))(function (resolve, reject) {
@@ -27,7 +38,7 @@ var capacitorPlugin = (function (exports, core) {
                 platforms: ['web'],
             });
         }
-        createEspDevice(data) {
+        createESPDevice(data) {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log('[Web]: createEspDevice', data);
                 return data;
@@ -45,7 +56,7 @@ var capacitorPlugin = (function (exports, core) {
                 return data;
             });
         }
-        stopBleScane() {
+        stopBleScan() {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log('[Web]: stopBleScane');
                 return Promise.resolve();

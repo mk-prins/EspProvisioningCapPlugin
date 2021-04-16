@@ -5,9 +5,9 @@ public class Formatter {
     
     public static func espSecurityStringToEnum(str: String?) -> ESPSecurity? {
         switch str?.lowercased() {
-            case "secure":
+            case "1":
                 return ESPSecurity.secure
-            case "unsecure":
+            case "0":
                 return ESPSecurity.unsecure
             default:
                 return nil
@@ -64,6 +64,31 @@ public class Formatter {
             ])
         }
         return serialisedList
+    }
+    
+    public static func provisionStatusToString(status: ESPProvisionStatus) -> String {
+        switch status {
+            case ESPProvisionStatus.configApplied:
+                return "Config Applied"
+            case ESPProvisionStatus.success:
+                return "Success"
+            case ESPProvisionStatus.failure(.configurationError):
+                return "The attempt to apply network configuration in ESPDevice failed with associated error."
+            case ESPProvisionStatus.failure(.sessionError):
+                return "Session needed for communication is not maintained with ESPDevice."
+            case ESPProvisionStatus.failure(.wifiStatusAuthenticationError):
+                return "Wrong Wi-Fi credentials applied to ESPDevice."
+            case ESPProvisionStatus.failure(.wifiStatusDisconnected):
+                return "Unable to apply Wi-Fi settings to ESPDevice with status disconnected."
+            case ESPProvisionStatus.failure(.wifiStatusError):
+                return "The attempt to fetch Wi-Fi status of ESPDevice failed with underlying error."
+            case ESPProvisionStatus.failure(.wifiStatusNetworkNotFound):
+                return "Wi-Fi network not found."
+            case ESPProvisionStatus.failure(.wifiStatusUnknownError):
+                return "Wi-Fi status of ESPDevice is unknown."
+            default:
+                return "Unknown error"
+        }
     }
 
 }

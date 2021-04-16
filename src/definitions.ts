@@ -4,17 +4,17 @@ declare module '@capacitor/core' {
     }
 }
 
-enum TransportType {
+export enum TransportType {
     TRANSPORT_BLE,
     TRANSPORT_SOFTAP
 }
 
-enum SecurityType {
+export enum SecurityType {
     SECURITY_0,
     SECURITY_1
 }
 
-interface ESPDevice {
+export interface ESPDevice {
     id: number;
     device: {
         name: string;
@@ -27,14 +27,14 @@ interface ESPDevice {
     }
 }
 
-interface WifiNetwork {
+export interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
 }
 
 export interface EspProvisioningPlugin {
-    createEspDevice(data: { name: string, transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice>;
+    createESPDevice(data: { name: string, transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice>;
     scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
     searchWifiEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
