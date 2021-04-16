@@ -4,8 +4,9 @@ import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
-import android.os.ParcelUuid;
+import android.util.Log;
 
+import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPDevice;
 import com.espressif.provisioning.ESPProvisionManager;
@@ -24,9 +25,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.ACCESS_NETWORK_STATE;
@@ -42,6 +45,8 @@ public class EspProvisioning extends Plugin {
     private ESPProvisionManager espProvisionManager;
     private Hashtable<String,ScanResult> scanResults;
     private Hashtable<Integer,ESPDevice> espDevices = new Hashtable<>();
+    private boolean connectionStatusReceived = false;
+    private short connectionStatus;
 
     private Integer createDeviceID(ESPDevice espDevice){
         Integer deviceID = espDevices.size();
@@ -217,16 +222,21 @@ public class EspProvisioning extends Plugin {
 
     @PluginMethod
     @RequiresPermission(ACCESS_NETWORK_STATE)
-    public void connectToDevice(PluginCall call) throws InterruptedException {
+    public void connectToDevice(PluginCall call) throws InterruptedException{
         Integer deviceID = call.getInt("device");
         if(validateDeviceID(deviceID)){
             ESPDevice device = espDevices.get(deviceID);
+            EventBus.getDefault().register(this);
+            connectionStatusReceived = false;
+            device.disconnectDevice();
             device.connectToDevice();
-            //TO-DO check if device is connected
-            JSObject ret = new JSObject();
-            ret.put("Return Message", "Device Connected... I hope");
-            Thread.sleep(5000);
-            call.success(ret);
+            while(!connectionStatusReceived);
+            EventBus.getDefault().unregister(this);
+            if(connectionStatus == ESPConstants.EVENT_DEVICE_CONNECTED){
+                call.success();
+            } else {
+                call.reject("Couldn't connect to device");
+            }
         } else {
             call.reject("Invalid Device ID provided");
         }
@@ -271,7 +281,6 @@ public class EspProvisioning extends Plugin {
         String ssid = call.getString("ssid");
         String passphrase = call.getString("passphrase");
         if(validateDeviceID(deviceID)){
-            final JSObject ret = new JSObject();
             ESPDevice device = espDevices.get(deviceID);
             ProvisionListener provisionListener = new ProvisionListener() {
                 @Override
@@ -290,7 +299,6 @@ public class EspProvisioning extends Plugin {
 
                 @Override
                 public void wifiConfigApplied() {
-                    ret.put("wifiConfigApplied", "success");
                 }
 
                 @Override
@@ -305,8 +313,7 @@ public class EspProvisioning extends Plugin {
 
                 @Override
                 public void deviceProvisioningSuccess() {
-                    ret.put("status", "success");
-                    call.success(ret);
+                    call.success();
                 }
 
                 @Override
@@ -318,5 +325,11 @@ public class EspProvisioning extends Plugin {
         } else {
             call.reject("Invalid Device ID provided");
         }
+    }
+
+    @Subscribe
+    public void onDeviceConnectionEvent(DeviceConnectionEvent deviceConnectionEvent){
+        connectionStatus = deviceConnectionEvent.getEventType();
+        connectionStatusReceived = true;
     }
 }
