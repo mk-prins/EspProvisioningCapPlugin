@@ -31,6 +31,7 @@ export interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
+    security: number;
 }
 
 export interface EspProvisioningPlugin {
