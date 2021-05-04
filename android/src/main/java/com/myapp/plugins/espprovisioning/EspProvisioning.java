@@ -263,9 +263,9 @@ public class EspProvisioning extends Plugin {
                         network.put("rssi",ap.getRssi());
                         Log.d(ap.getWifiName(),String.valueOf(ap.getSecurity()));
                         if(ap.getSecurity() == 0){
-                            network.put("isSecured",false);
+                            network.put("security",false);
                         } else {
-                            network.put("isSecured",true);
+                            network.put("security",true);
                         }
                         networks.put(network);
                     }

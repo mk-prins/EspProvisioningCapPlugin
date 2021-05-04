@@ -28,7 +28,7 @@ interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
-    isSecured: boolean;
+    security: boolean;
 }
 
 export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
