@@ -24,9 +24,11 @@ interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
+    security: number;
 }
 export declare class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
     constructor();
+    requestLocationPermissions(): Promise<void>;
     createESPDevice(data: {
         transportType: TransportType;
         securityType: SecurityType;

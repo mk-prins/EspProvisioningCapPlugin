@@ -1,6 +1,5 @@
 package com.myapp.plugins.espprovisioning;
 
-import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
@@ -21,6 +20,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
@@ -39,19 +39,27 @@ import static android.Manifest.permission.BLUETOOTH_ADMIN;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.CHANGE_WIFI_STATE;
 
-@NativePlugin
+@NativePlugin(
+        permissions={
+                BLUETOOTH,
+                BLUETOOTH_ADMIN,
+                ACCESS_FINE_LOCATION,
+                ACCESS_WIFI_STATE,
+                CHANGE_WIFI_STATE,
+                ACCESS_NETWORK_STATE
+        },
+        requestCodes = {EspProvisioning.REQUEST_ACCESS_FINE_LOCATION}
+)
 public class EspProvisioning extends Plugin {
 
     private ESPProvisionManager espProvisionManager;
     private Hashtable<String,ScanResult> scanResults;
     private Hashtable<Integer,ESPDevice> espDevices = new Hashtable<>();
-    private boolean connectionStatusReceived = false;
-    private short connectionStatus;
+    static final int REQUEST_ACCESS_FINE_LOCATION = 8000;
 
     private Integer createDeviceID(ESPDevice espDevice){
         Integer deviceID = espDevices.size();
         espDevices.put(deviceID,espDevice);
-
         return deviceID;
     }
 
@@ -67,16 +75,19 @@ public class EspProvisioning extends Plugin {
     }
 
     @PluginMethod
-    public void requestPermissions(PluginCall call){
-        String[] permissions = {ACCESS_FINE_LOCATION,CAMERA};
-        ActivityCompat.requestPermissions(getActivity(),permissions,1);
-        call.success();
+    public void requestLocationPermissions(PluginCall call){
+        if(ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            call.success();
+        } else {
+            saveCall(call);
+            pluginRequestPermission(ACCESS_FINE_LOCATION,REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 
     @PluginMethod
     @RequiresPermission(ACCESS_NETWORK_STATE)
     public void createESPDevice(final PluginCall call) {
-        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             scanResults = new Hashtable<>();
 
             String tpType = call.getString("transportType", ESPConstants.TransportType.TRANSPORT_BLE.toString());
@@ -131,6 +142,8 @@ public class EspProvisioning extends Plugin {
                 }
             };
             espProvisionManager.searchBleEspDevices(name, bleScanListener);
+        } else {
+            call.error("Requires Permission: Location");
         }
     }
 
@@ -143,7 +156,7 @@ public class EspProvisioning extends Plugin {
     @PluginMethod
     @RequiresPermission(ACCESS_FINE_LOCATION)
     public void searchBleEspDevices(final PluginCall call) {
-        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             scanResults = new Hashtable<>();
             BleScanListener bleScanListener = new BleScanListener() {
 
@@ -180,9 +193,7 @@ public class EspProvisioning extends Plugin {
                 espProvisionManager.searchBleEspDevices(bleScanListener);
             }
         } else {
-            String[] permissions = {ACCESS_FINE_LOCATION};
-            ActivityCompat.requestPermissions(getActivity(),permissions,1);
-            call.error("Requires Permissions");
+            call.error("Requires Permission: Location");
         }
     }
 
@@ -226,17 +237,9 @@ public class EspProvisioning extends Plugin {
         Integer deviceID = call.getInt("device");
         if(validateDeviceID(deviceID)){
             ESPDevice device = espDevices.get(deviceID);
+            saveCall(call);
             EventBus.getDefault().register(this);
-            connectionStatusReceived = false;
-            device.disconnectDevice();
             device.connectToDevice();
-            while(!connectionStatusReceived);
-            EventBus.getDefault().unregister(this);
-            if(connectionStatus == ESPConstants.EVENT_DEVICE_CONNECTED){
-                call.success();
-            } else {
-                call.reject("Couldn't connect to device");
-            }
         } else {
             call.reject("Invalid Device ID provided");
         }
@@ -330,7 +333,30 @@ public class EspProvisioning extends Plugin {
 
     @Subscribe
     public void onDeviceConnectionEvent(DeviceConnectionEvent deviceConnectionEvent){
-        connectionStatus = deviceConnectionEvent.getEventType();
-        connectionStatusReceived = true;
+        EventBus.getDefault().unregister(this);
+        PluginCall savedCall = getSavedCall();
+        if(deviceConnectionEvent.getEventType() == ESPConstants.EVENT_DEVICE_CONNECTED){
+            savedCall.success();
+        } else {
+            savedCall.error("Couldn't connect to device");
+        }
+    }
+
+    @Override
+    protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        super.handleRequestPermissionsResult(requestCode,permissions,grantResults);
+        PluginCall savedCall = getSavedCall();
+        if(savedCall == null){
+            return;
+        }
+        for(int result: grantResults){
+            if(result == PackageManager.PERMISSION_DENIED){
+                savedCall.error("Permission Denied by User");
+                return;
+            }
+        }
+        if(requestCode == REQUEST_ACCESS_FINE_LOCATION){
+            savedCall.success();
+        }
     }
 }

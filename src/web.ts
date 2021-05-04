@@ -28,6 +28,7 @@ interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
+    security: number;
 }
 
 export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
@@ -36,6 +37,11 @@ export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlug
             name: 'EspProvisioning',
             platforms: ['web'],
         });
+    }
+
+    async requestLocationPermissions(): Promise<void> {
+        console.log('[Web]: requestLocationPermissions');
+        return Promise.resolve();
     }
 
     async createESPDevice(data: { transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice> {
