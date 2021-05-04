@@ -261,7 +261,11 @@ public class EspProvisioning extends Plugin {
                         network = new JSObject();
                         network.put("ssid",ap.getWifiName());
                         network.put("rssi",ap.getRssi());
-                        network.put("security",ap.getSecurity());
+                        if(ap.getSecurity() == 0){
+                            network.put("security",false);
+                        } else {
+                            network.put("security",true);
+                        }
                         networks.put(network);
                     }
                     ret.put("networks",networks);
