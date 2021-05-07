@@ -24,7 +24,7 @@ interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
-    security: number;
+    security: boolean;
 }
 export declare class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
     constructor();

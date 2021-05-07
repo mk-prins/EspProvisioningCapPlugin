@@ -13,7 +13,6 @@ export enum SecurityType {
     SECURITY_0,
     SECURITY_1
 }
-
 export interface ESPDevice {
     id: number;
     device: {
@@ -35,7 +34,8 @@ export interface WifiNetwork {
 }
 
 export interface EspProvisioningPlugin {
-    requestLocationPermissions(): Promise<void>;
+    requestLocationPermissions(): Promise<unknown>;
+    checkLocationPermissions(data: unknown): Promise<{ permissionStatus: string}>;
     createESPDevice(data: { name: string, transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice>;
     scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;

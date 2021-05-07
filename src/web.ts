@@ -39,9 +39,14 @@ export class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlug
         });
     }
 
-    async requestLocationPermissions(): Promise<void> {
+    async requestLocationPermissions(): Promise<unknown> {
         console.log('[Web]: requestLocationPermissions');
         return Promise.resolve();
+    }
+
+    async checkLocationPermissions(data: unknown): Promise<{permissionStatus: string}> {
+        console.log('[Web]: checkLocationPermissions');
+        return data as {} as { permissionStatus: string };
     }
 
     async createESPDevice(data: { transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice> {
