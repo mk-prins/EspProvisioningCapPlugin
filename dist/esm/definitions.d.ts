@@ -27,7 +27,7 @@ export interface WifiNetwork {
     ssid: string;
     channel: string;
     rssi: string;
-    security: number;
+    security: boolean;
 }
 export interface EspProvisioningPlugin {
     requestLocationPermissions(): Promise<void>;

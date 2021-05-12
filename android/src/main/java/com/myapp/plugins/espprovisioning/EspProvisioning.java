@@ -75,6 +75,21 @@ public class EspProvisioning extends Plugin {
     }
 
     @PluginMethod
+    public void checkLocationPermissions(PluginCall call){
+        JSObject ret = new JSObject();
+        if(ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            ret.put("permissionStatus", "granted");
+        } else {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this.getActivity(),ACCESS_FINE_LOCATION)){
+                ret.put("permissionStatus", "denied");
+            } else {
+                ret.put("permissionStatus", "neverAsked");
+            }
+        }
+        call.success(ret);
+    }
+
+    @PluginMethod
     public void requestLocationPermissions(PluginCall call){
         if(ActivityCompat.checkSelfPermission(getContext().getApplicationContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             call.success();
