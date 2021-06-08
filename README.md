@@ -1,4 +1,4 @@
-# twomes-repository template
+# Espressif SDK Capacitor Plugin
 A template repository for the Twomes project.
 
 ## Table of contents
