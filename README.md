@@ -130,6 +130,7 @@ List of features ready and TODOs for future development. Ready:
 To-do:
  * Automated version management
  * Improved typings and exporting type declaration.
+ * Check/Prompt for Bluetooth to be enabled.
 
 ## Status
 Project is: _in progress_
