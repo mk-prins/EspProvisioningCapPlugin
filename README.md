@@ -134,6 +134,7 @@ To-do:
 
 ## Status
 Project is: _in progress_
+
 This is currently still in development. The current version is usable and stable, but could use some internal cleanup and improvements.
 
 ## License
