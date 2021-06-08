@@ -154,3 +154,4 @@ We use and gratefully acknowledge the efforts of the makers of the following sou
 * [Capacitor](https://github.com/ionic-team/capacitor), by Drifty Co., licensed under [MIT](https://github.com/ionic-team/capacitor/blob/main/LICENSE)
 * [esp-idf-provisioning-ios](https://github.com/espressif/esp-idf-provisioning-ios), by Espressif, licensed under [Apache 2.0](https://github.com/espressif/esp-idf-provisioning-ios/blob/master/LICENSE)
 * [esp-idf-provisioning-android](https://github.com/espressif/esp-idf-provisioning-android), by Espressif, licensed under [Apache 2.0](https://github.com/espressif/esp-idf-provisioning-android/blob/master/LICENSE)
+* [EventBus](https://github.com/greenrobot/EventBus), by greenrobot, licensed under [Apache 2.0](https://github.com/greenrobot/EventBus/blob/master/LICENSE)
