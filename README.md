@@ -148,7 +148,7 @@ This software is a collaborative effort of the following students:
 Product owner:
 * Henri ter Hofte  ·  [@henriterhofte](https://github.com/henriterhofte)
 
-We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
+We use and gratefully acknowledge the efforts of the makers of the following source code and libraries:
 
 * [Capacitor](https://github.com/ionic-team/capacitor), by Drifty Co., licensed under [MIT](https://github.com/ionic-team/capacitor/blob/main/LICENSE)
 * [esp-idf-provisioning-ios](https://github.com/espressif/esp-idf-provisioning-ios), by Espressif, licensed under [Apache 2.0](https://github.com/espressif/esp-idf-provisioning-ios/blob/master/LICENSE)
