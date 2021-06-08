@@ -1,26 +1,34 @@
-# Espressif SDK Capacitor Plugin
+# twomes-repository template
+A template repository for the Twomes project.
+
+## Table of contents
+* [General info](#general-info)
+* [Prerequisites](#prerequisites)
+* [Deploying](#deploying)
+* [Developing](#developing) 
+* [Features](#features)
+* [Status](#status)
+* [License](#license)
+* [Credits](#credits)
+
+## General info
 This is a [capacitor](https://capacitorjs.com/docs) plugin for using the [Espressif SDK for Unified Provisioning](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html). It contains support for both Android and iOS.
 
- - [Prerequisites](#prerequisites)
- - [Installing](#installing)
-   - [Configure Android](#configure-android)
-   - [Configure iOS](#configure-ios)
-     - [Permissions](#permissions)
- - [Developing](#developing)
-   - [Local development](#local-development)
- - [Additional resources](#additional-resources)
- - [License](#license)
-
 ## Prerequisites
- - Yarn installed
+ - [Node](https://nodejs.org/en/) installed
+ - [Yarn](https://yarnpkg.com/) installed
+ - (Ionic) Capacitor installed globally with yarn or npm
  - Xcode and Cocoapods installed for iOS
  - Android Studio installed for Android
-## Installing
-Depending on wether you're using `yarn` or `npm` run the following inside the project you wish to add this plugin into.
-```
-yarn add https://github.com/mk-prins/EspProvisioningCapPlugin
--OR-
-npm install --save https://github.com/mk-prins/EspProvisioningCapPlugin
+
+## Deploying
+To use this package in any project you'll need to do the following.
+
+### Adding the dependency
+Run the following inside the project you wish to add this plugin into.
+```bash
+yarn add https://github.com/energietransitie/esp-provisioning-capacitor-plugin#<release_version>
+# e.g. yarn add https://github.com/energietransitie/esp-provisioning-capacitor-plugin#v1.0.0
 ```
 
 ### Configure Android
@@ -32,7 +40,7 @@ import com.myapp.plugins.espprovisioning.EspProvisioning;
 ```
 
 Then add the plugin inside the `init()` method.
-```
+```java
 // Initializes the Bridge
 this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
     // Additional plugins you've installed go here
@@ -41,23 +49,23 @@ this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
 ```
 
 Finally you need to make capacitor inside your project aware of the added plugin.
-```
+```bash
 cap sync android
--OR-
+# -OR-
 ionic cap sync android
 ```
 
 ### Configure iOS
-You need to make capacitor aware of the added plugin using the sync script.
-```
+You need to make capacitor aware of the added plugin using the sync script. Capacitor should take care of the Podfiles and the installment of the defined dependencies.
+```bash
 cap sync ios
--OR-
+# -OR-
 ionic cap sync ios
 ```
 
 #### Permissions
 The following three permissions need to be added to your project's `Info.plist`. Update the description strings to match your application.
-```
+```xml
 <key>NSBluetoothAlwaysUsageDescription</key>
 <string>Your bluetooth is required for xyz benefits for you...</string>
 <key>NSLocationWhenInUseUsageDescription</key>
@@ -66,9 +74,9 @@ The following three permissions need to be added to your project's `Info.plist`.
 <string>Your local network usage info is required for xyz benefits for you...</string>
 ```
 
-## Usage
-If succesfully configured for the desired platform, you'll be able to simply get the plugin through capacitor doing;
-```
+### Usage
+If succesfully configured for the desired platform(s), you'll be able to simply import the plugin through capacitor using;
+```js
 import { Plugins } from '@capacitor/core';
 
 const { EspProvisioning } = Plugins;
@@ -76,61 +84,72 @@ const { EspProvisioning } = Plugins;
 
 ## Developing
 This project uses `yarn` as the node package manager. Make sure to install all the depencies.
-```
+```bash
 yarn
 ```
 
 Whenever you've made any changes you need to (re)build to apply them.
-```
+```bash
 yarn build
 ```
 
 ### Local development
 To make local development significantly easier, you can use the `link` feature off `npm` or `yarn`. This will allow you to directly debug any changes without any of the hassle.
 
-```
-/* Inside this project */
+```bash
+# Inside this project
 yarn link
--OR-
-npm link
 
-/* Inside of your own project */
+# Inside of your own project
 yarn link esp-provisioning-plugin
--OR-
-npm link esp-provisioning-plugin
 ```
 
 **Note!** Once done, don't forget to `unlink`.
-```
-/* Inside of your own project */
+```bash
+# Inside of your own project
 yarn unlink esp-provisioning-plugin
--OR-
-npm unlink esp-provisioning-plugin
 
-/* Inside this project */
+# Inside this project
 yarn unlink
--OR-
-npm unlink
 ```
 
-## Additional resources
-For more info on the packages used checkout their official documentation.
- - [Capacitor](https://capacitorjs.com/docs)
- - [Espressif Unified Provisioning](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html)
-   - [SDK for Android](https://github.com/espressif/esp-idf-provisioning-android)
-   - [SDK for iOS](https://github.com/espressif/esp-idf-provisioning-ios)
+## Features
+List of features ready and TODOs for future development. Ready:
+
+| Method | Params | Returns | Note |
+| ------ | ------ | ------- | ---- |
+| requestLocationPermissions | - | `Promise<unknown>` | Android Only |
+| checkLocationPermissions | - | `Promise<{ permissionStatus: string}>` | Android Only |
+| createESPDevice | `{ name: string, transportType: TransportType, securityType: SecurityType, pop: string }` | `Promise<ESPDevice>` | - |
+| searchBleEspDevices | `{ prefix?: string }` | `Promise<{ count: number; devices: ESPDevice[]}>` | - |
+| searchWifiEspDevices | `{ prefix?: string }` | `Promise<{ count: number; devices: ESPDevice[]}>` | Android Only |
+| stopBleScan | - | `Promise<void>` | - |
+| connectToDevice | `{ device: number }` | `Promise<Record<string, string>>` | - |
+| scanWifiList | `{ device: number }` | `Promise<{ count: number; networks: WifiNetwork[]}>` | - |
+| provision | `{ device: number, ssid: string, passphrase: string }` | `Promise<Record<string, string>>` | - |
+
+To-do:
+ * Automated version management
+ * Improved typings and exporting type declaration.
+
+## Status
+Project is: _in progress_
+This is currently still in development. The current version is usable and stable, but could use some internal cleanup and improvements.
 
 ## License
-Copyright 2021 Research group Energy Transition, Windesheim University of Applied Sciences
+This software is available under the [Apache 2.0 license](./LICENSE.md), Copyright 2021 [Research group Energy Transition, Windesheim University of Applied Sciences](https://windesheim.nl/energietransitie) 
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+## Credits
+This software is a collaborative effort of the following students:
+* Wietske Veneberg  ·  [@WVeneberg](https://github.com/WVeneberg)
+* Amicia Smit  ·  [@AmiciaSmit](https://github.com/AmiciaSmit)
+* Marco Prins  ·  [@mk-prins](https://github.com/mk-prins)
 
-  http://www.apache.org/licenses/LICENSE-2.0
+Product owner:
+* Henri ter Hofte  ·  [@henriterhofte](https://github.com/henriterhofte)
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
+
+* [Capacitor](https://github.com/ionic-team/capacitor), by Drifty Co., licensed under [MIT](https://github.com/ionic-team/capacitor/blob/main/LICENSE)
+* [esp-idf-provisioning-ios](https://github.com/espressif/esp-idf-provisioning-ios), by Espressif, licensed under [Apache 2.0](https://github.com/espressif/esp-idf-provisioning-ios/blob/master/LICENSE)
+* [esp-idf-provisioning-android](https://github.com/espressif/esp-idf-provisioning-android), by Espressif, licensed under [Apache 2.0](https://github.com/espressif/esp-idf-provisioning-android/blob/master/LICENSE)
