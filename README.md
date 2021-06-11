@@ -141,7 +141,7 @@ This is currently still in development. The current version is usable and stable
 This software is available under the [Apache 2.0 license](./LICENSE), Copyright 2021 [Research group Energy Transition, Windesheim University of Applied Sciences](https://windesheim.nl/energietransitie) 
 
 ## Credits
-This software is a collaborative effort of the following students:
+This software is a collaborative effort of the following people:
 * Wietske Veneberg  ·  [@WVeneberg](https://github.com/WVeneberg)
 * Amicia Smit  ·  [@AmiciaSmit](https://github.com/AmiciaSmit)
 * Marco Prins  ·  [@mk-prins](https://github.com/mk-prins)
