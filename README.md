@@ -131,11 +131,13 @@ To-do:
  * Automated version management
  * Improved typings and exporting type declaration.
  * Check/Prompt for Bluetooth to be enabled.
+ * Add disconnect method/capability for non-happy flow handling.
+ * Add method timeouts. (e.g. if for example `connectToDevice` doesn't resolve or reject within X seconds, reject with a "timeout" error message.)
 
 ## Status
 Project is: _in progress_
 
-This is currently still in development. The current version is usable and stable, but could use some internal cleanup and improvements.
+The current version is usable and stable, but there is plenty of room for improvement.
 
 ## License
 This software is available under the [Apache 2.0 license](./LICENSE), Copyright 2021 [Research group Energy Transition, Windesheim University of Applied Sciences](https://windesheim.nl/energietransitie) 

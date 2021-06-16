@@ -3,13 +3,8 @@ import Capacitor
 import ESPProvision
 
 public class ProvisioningManager: NSObject {
-    
-    private var rootViewController: UIViewController
+
     private var deviceList:[ESPDevice] = []
-    
-    init(viewController: UIViewController) {
-        rootViewController = viewController
-    }
     
     private func createDeviceID(espDevice: ESPDevice) -> Int {
         let deviceID = self.deviceList.count
@@ -68,24 +63,6 @@ public class ProvisioningManager: NSObject {
                 "count": deviceList!.count,
                 "devices": self.formatDeviceList(deviceList: deviceList!)
             ])
-        }
-    }
-    
-    public func scanQRCode(call: CAPPluginCall) {
-        DispatchQueue.main.async {
-            let qrScanViewController = QRScanViewController()
-            self.rootViewController.present(qrScanViewController, animated: true, completion: nil)
-            
-            ESPProvisionManager.shared.scanQRCode(scanView: qrScanViewController.CameraView) { espDevice, error in
-                if (error != nil) {
-                    call.error("Device could not be found", error);
-                    return
-                }
-                call.success([
-                    "id": self.createDeviceID(espDevice: espDevice!),
-                    "device": Formatter.serialiseEspDevice(device: espDevice!)
-                ])
-            }
         }
     }
     

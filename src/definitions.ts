@@ -37,7 +37,6 @@ export interface EspProvisioningPlugin {
     requestLocationPermissions(): Promise<unknown>;
     checkLocationPermissions(data: unknown): Promise<{ permissionStatus: string}>;
     createESPDevice(data: { name: string, transportType: TransportType, securityType: SecurityType, pop: string }): Promise<ESPDevice>;
-    scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
     searchWifiEspDevices(data?: { prefix: string }): Promise<{ count: number; devices: ESPDevice[]}>;
     stopBleScan(): Promise<void>;

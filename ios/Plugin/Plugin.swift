@@ -11,7 +11,7 @@ public class EspProvisioning: CAPPlugin {
     private var provisioningManager: ProvisioningManager!
     
     @objc override public func load() {
-        self.provisioningManager = ProvisioningManager(viewController: self.bridge.viewController)
+        self.provisioningManager = ProvisioningManager()
     }
 
     @objc func createESPDevice(_ call: CAPPluginCall) {
@@ -24,10 +24,6 @@ public class EspProvisioning: CAPPlugin {
     
     @objc func searchWifiEspDevices(_ call: CAPPluginCall) {
         call.reject("SoftAP search is not supported in iOS currently.")
-    }
-    
-    @objc func scanQRCode(_ call: CAPPluginCall) {
-        self.provisioningManager.scanQRCode(call: call)
     }
     
     @objc func connectToDevice(_ call: CAPPluginCall) {
