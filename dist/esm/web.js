@@ -31,6 +31,12 @@ export class EspProvisioningWeb extends WebPlugin {
             return Promise.resolve();
         });
     }
+    checkLocationPermissions(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[Web]: checkLocationPermissions');
+            return data;
+        });
+    }
     createESPDevice(data) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('[Web]: createEspDevice', data);

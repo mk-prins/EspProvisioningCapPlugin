@@ -28,7 +28,10 @@ interface WifiNetwork {
 }
 export declare class EspProvisioningWeb extends WebPlugin implements EspProvisioningPlugin {
     constructor();
-    requestLocationPermissions(): Promise<void>;
+    requestLocationPermissions(): Promise<unknown>;
+    checkLocationPermissions(data: unknown): Promise<{
+        permissionStatus: string;
+    }>;
     createESPDevice(data: {
         transportType: TransportType;
         securityType: SecurityType;

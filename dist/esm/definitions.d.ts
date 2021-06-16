@@ -30,14 +30,16 @@ export interface WifiNetwork {
     security: boolean;
 }
 export interface EspProvisioningPlugin {
-    requestLocationPermissions(): Promise<void>;
+    requestLocationPermissions(): Promise<unknown>;
+    checkLocationPermissions(data: unknown): Promise<{
+        permissionStatus: string;
+    }>;
     createESPDevice(data: {
         name: string;
         transportType: TransportType;
         securityType: SecurityType;
         pop: string;
     }): Promise<ESPDevice>;
-    scanQRCode(data: unknown): Promise<ESPDevice>;
     searchBleEspDevices(data?: {
         prefix: string;
     }): Promise<{
